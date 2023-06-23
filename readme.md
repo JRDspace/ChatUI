@@ -1,0 +1,5 @@
+- Do `npm i` in `frontend`
+- `npm start`
+- ChatBubble Component - `frontend/src/components`
+- `{ text: message, sender: 'user' }` in `app.js`  - is for right side bubble i.e., user message
+- `{ text: message, sender: 'api' }` in `app.js`  - is for left side bubble i.e., system message
