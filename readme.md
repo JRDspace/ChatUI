@@ -2,4 +2,5 @@
 - `npm start`
 - ChatBubble Component - `frontend/src/components`
 - `{ text: message, sender: 'user' }` in `app.js`  - is for right side bubble i.e., user message
-- `{ text: message, sender: 'api' }` in `app.js`  - is for left side bubble i.e., system message
+- `{ text: message, sender: 'system' }` in `app.js`  - is for left side bubble i.e., system message
+- To save the message send `save` property with boolean `true | false` for example `{ text: message, sender: 'system', save:false }` `{ text: message, sender: 'user', save:true }` 

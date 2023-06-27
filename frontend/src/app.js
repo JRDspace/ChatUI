@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, TextField, Button, Box, Typography, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ChatBubble from './components/ChatBubble';
 
 const App = () => {
@@ -21,29 +22,43 @@ const App = () => {
     scrollToBottom();
   }, [messages]);
 
+  const saveMessageToStorage = (messageObj) => {
+    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+    localStorage.setItem('messages', JSON.stringify([...storedMessages, messageObj]));
+  };
+
   const sendMessage = async () => {
     try {
-      if (uploading) return; 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: message, sender: 'user' },
-      ]);
+      if (uploading) return;
+      const newMessage = { text: message, sender: 'user', save: true };
+
+      if (newMessage.save) {
+        saveMessageToStorage(newMessage);
+      }
+
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
 
       const response = await axios.post('/send_message', { message });
       if (response.data.hasOwnProperty('message')) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: response.data.message, sender: 'api' },
-        ]);
+        const apiMessage = { text: response.data.message, sender: 'system', save: true };
+
+        if (apiMessage.save) {
+          saveMessageToStorage(apiMessage);
+        }
+
+        setMessages((prevMessages) => [...prevMessages, apiMessage]);
       }
 
       setMessage('');
     } catch (error) {
       console.error(error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: `Failed to send message: ${error}`, sender: 'api' },
-      ]);
+      const errorMessage = { text: `Failed to send message: ${error}`, sender: 'system', save: true };
+
+      if (errorMessage.save) {
+        saveMessageToStorage(errorMessage);
+      }
+
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
     }
   };
 
@@ -56,10 +71,13 @@ const App = () => {
 
       reader.onload = async (event) => {
         const pdfString = event.target.result;
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: `Uploading file: ${file.name}`, sender: 'user' },
-        ]);
+        const fileMessage = { text: `Uploading file: ${file.name}`, sender: 'user', save: true };
+
+        if (fileMessage.save) {
+          saveMessageToStorage(fileMessage);
+        }
+
+        setMessages((prevMessages) => [...prevMessages, fileMessage]);
 
         const response = await axios.post('/send_message', {
           message: pdfString,
@@ -67,10 +85,13 @@ const App = () => {
         });
 
         if (response.data.hasOwnProperty('message')) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { text: response.data.message, sender: 'api' },
-          ]);
+          const apiMessage = { text: response.data.message, sender: 'system', save: true };
+
+          if (apiMessage.save) {
+            saveMessageToStorage(apiMessage);
+          }
+
+          setMessages((prevMessages) => [...prevMessages, apiMessage]);
         }
 
         setMessage('');
@@ -80,13 +101,26 @@ const App = () => {
       reader.readAsDataURL(file);
     } catch (error) {
       console.error(error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: `Failed to upload file: ${error}`, sender: 'api' },
-      ]);
+      const errorMessage = { text: `Failed to upload file: ${error}`, sender: 'system', save: true };
+
+      if (errorMessage.save) {
+        saveMessageToStorage(errorMessage);
+      }
+
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
       setUploading(false);
     }
   };
+
+  const clearChat = () => {
+    localStorage.removeItem('messages');
+    setMessages([]);
+  };
+
+  useEffect(() => {
+    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+    setMessages(storedMessages);
+  }, []);
 
   return (
     <Box
@@ -181,6 +215,23 @@ const App = () => {
             <input type="file" hidden onChange={handleFileUpload} />
             <CloudUploadIcon />
           </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={clearChat}
+            disabled={uploading}
+            sx={{
+              ml: 1,
+              color: '#ffffff',
+              backgroundColor: '#585859',
+              '&:hover': {
+                backgroundColor: '#4d4d4d',
+              },
+            }}
+          >
+            <DeleteIcon />
+          </Button>
+
           {uploading && <CircularProgress size={24} sx={{ ml: 1 }} />}
         </Box>
       </Container>
