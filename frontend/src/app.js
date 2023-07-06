@@ -6,7 +6,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChatBubble from './components/ChatBubble';
 
-const App = () => {
+const App = ({ showSendButton = true, showUploadButton = true, showClearButton = true }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -197,40 +197,46 @@ const App = () => {
             }}
             autoComplete="off"
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={sendMessage}
-            disabled={!message || uploading}
-            sx={{ ml: 1 }}
-          >
-            <SendIcon />
-          </Button>
-          <Button
-            variant="contained"
-            component="label"
-            disabled={uploading}
-            sx={{ ml: 1 }}
-          >
-            <input type="file" hidden onChange={handleFileUpload} />
-            <CloudUploadIcon />
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={clearChat}
-            disabled={uploading}
-            sx={{
-              ml: 1,
-              color: '#ffffff',
-              backgroundColor: '#585859',
-              '&:hover': {
-                backgroundColor: '#4d4d4d',
-              },
-            }}
-          >
-            <DeleteIcon />
-          </Button>
+          {showSendButton && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={sendMessage}
+              disabled={!message || uploading}
+              sx={{ ml: 1 }}
+            >
+              <SendIcon />
+            </Button>
+          )}
+          {showUploadButton && (
+            <Button
+              variant="contained"
+              component="label"
+              disabled={uploading}
+              sx={{ ml: 1 }}
+            >
+              <input type="file" hidden onChange={handleFileUpload} />
+              <CloudUploadIcon />
+            </Button>
+          )}
+          {showClearButton && (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={clearChat}
+              disabled={uploading}
+              sx={{
+                ml: 1,
+                color: '#ffffff',
+                backgroundColor: '#585859',
+                '&:hover': {
+                  backgroundColor: '#4d4d4d',
+                },
+              }}
+            >
+              <DeleteIcon />
+            </Button>
+          )}
 
           {uploading && <CircularProgress size={24} sx={{ ml: 1 }} />}
         </Box>

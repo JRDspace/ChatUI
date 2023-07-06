@@ -1,40 +1,48 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 import { AccountCircle, AndroidOutlined } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
 
-const BubbleContainer = styled(Box)(({ theme, isUserMessage }) => ({
-  display: 'flex',
-  marginBottom: '8px',
-  flexDirection: isUserMessage ? 'row-reverse' : 'row',
-}));
+const ChatBubble = ({ text, sender, align }) => {
+  const bubbleStyle = {
+    backgroundColor: sender === 'user' ? '#f3f3f3' : '#e1f5fe',
+    color: sender === 'user' ? '#000' : '#000',
+    borderRadius: '8px',
+    padding: '8px 16px',
+    marginBottom: '8px',
+    display: 'inline-block',
+    maxWidth: '80%',
+    boxShadow: 'none',
+  };
 
-const BubbleIcon = styled(Box)(({ theme, isUserMessage }) => ({
-  marginRight: isUserMessage ? '8px' : '0',
-  marginLeft: isUserMessage ? '0' : '8px',
-  alignSelf: 'center',
-}));
+  const userIcon = <AccountCircle sx={{ fontSize: 24 }} />;
+  const systemIcon = <AndroidOutlined sx={{ fontSize: 24 }} />;
 
-const BubbleContent = styled(Box)(({ theme, isUserMessage }) => ({
-  backgroundColor: isUserMessage ? '#F5F5F5' : '#DCF8C6',
-  padding: '8px 16px',
-  borderRadius: '4px',
-  maxWidth: '70%',
-  textAlign: isUserMessage ? 'right' : 'left',
-  wordWrap: 'break-word',
-}));
-
-const ChatBubble = ({ text, sender }) => {
-  const isUserMessage = sender === 'user';
-  const bubbleIcon = isUserMessage ? <AccountCircle /> : <AndroidOutlined />;
+  const bubbleIcon = sender === 'user' ? userIcon : sender === 'system' ? systemIcon : null;
 
   return (
-    <BubbleContainer isUserMessage={isUserMessage}>
-      <BubbleIcon isUserMessage={isUserMessage}>{bubbleIcon}</BubbleIcon>
-      <BubbleContent isUserMessage={isUserMessage}>
-        <Typography variant="body1">{text}</Typography>
-      </BubbleContent>
-    </BubbleContainer>
+    <Box display="flex" justifyContent={align === 'right' ? 'flex-end' : 'flex-start'}>
+      <Paper elevation={2} sx={bubbleStyle}>
+        {sender === 'system' && (
+          <Box display="flex" alignItems="center" mb={1}>
+            {bubbleIcon && align === 'left' && <Box mr={1}>{bubbleIcon}</Box>}
+            <Typography variant="caption">{sender}</Typography>
+            {bubbleIcon && align !== 'left' && <Box ml={1}>{bubbleIcon}</Box>}
+          </Box>
+        )}
+        {sender === 'user' && (
+          <Box display="flex" alignItems="center" justifyContent={align === 'right' ? 'flex-end' : 'flex-start'} mb={1}>
+            {bubbleIcon && align === 'left' && <Box mr={1}>{bubbleIcon}</Box>}
+            <Typography variant="caption">User</Typography>
+            {bubbleIcon && align !== 'left' && <Box ml={1}>{bubbleIcon}</Box>}
+          </Box>
+        )}
+        <Box display="flex" alignItems="center">
+          <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+            {text}
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 
